@@ -92,9 +92,14 @@ crontab -e
 ```
 
 # Implemenation
-Discuss how you implement the project.
+1. Constructed a Linux server that runs CentOS 7 on Google Cloud Platform (GCP).
+2. Installed Docker and provisioned a PostgreSQL Docker container by pulling the PostgreSQL image from Docker Hub.
+3. Created and implemented ```psql_docker.sh``` script to create, start, and/or stop the container.
+4. Setup database through the PSQL CLI
+5. Create and implement ```ddl.sql``` script to create two tables ```host_info``` and ```host_usage``` to store hardware specifications and resource usage data.
+6. Create and implement ```host_info.sh``` and ```host_usage.sh``` to gather hardware information and host usage data and store it into the database.
+7. Use crontab to automate ```host_usage.sh``` script every minute.
 ## Architecture
-Draw a cluster diagram with three Linux hosts, a DB, and agents (use draw.io website). Image must be saved to the `assets` directory.
 
 ## Scripts
 Shell script description and usage (use markdown code block for script usage)
