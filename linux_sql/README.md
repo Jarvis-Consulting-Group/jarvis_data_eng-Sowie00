@@ -125,17 +125,16 @@ Shell script description and usage
 
 - Schema for `host_usage`
 
-| Column Name | Data Type |                                                     Constraints |
-|--|:---------:|----------------------------------------------------------------:|
-| timestamp | TIMESTAMP |                                                        NOT NULL |
-| host_id |  SERIAL   |                  NOT NULL, FOREIGN KEY REFERENCES host_info(id) |
-| memory_free |   INT4    |            NOT NULL                                          $1 |
-| cpu_idle |   INT2    |        NOT NULL                                            Cool |
-| cpu_kernel |   INT2    |      NOT NULL                                            -----: |
-| disk_io |   INT4    |     NOT NULL                                              $1600 |
+| Column Name    | Data Type |                                                     Constraints |
+|----------------|:---------:|----------------------------------------------------------------:|
+| timestamp      | TIMESTAMP |                                                        NOT NULL |
+| host_id        |  SERIAL   |                  NOT NULL, FOREIGN KEY REFERENCES host_info(id) |
+| memory_free    |   INT4    |            NOT NULL                                          $1 |
+| cpu_idle       |   INT2    |        NOT NULL                                            Cool |
+| cpu_kernel     |   INT2    |                                                        NOT NULL |
+| disk_io        |   INT4    |     NOT NULL                                              $1600 |
 | disk_available |   INT4    | NOT NULL                                                    $12 |
 # Test
-How did you test your bash scripts DDL? What was the result?
 
 The bash scripts were tested manually and in the following manner:
 1. testing `psql_docker.sh`
