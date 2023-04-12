@@ -102,27 +102,83 @@ crontab -e
 ## Architecture
 ![My diagram](assets/diagram.png)
 ## Scripts
-Shell script description and usage (use markdown code block for script usage)
-- psql_docker.sh
-- host_info.sh
-- host_usage.sh
-- crontab
-- queries.sql (describe what business problem you are trying to resolve)
+Shell script description and usage
+1. ```psql_docker.sh``` can create, stop or start the PostgreSQL instance within the docker container. The script accepts three parameters which are username, password, and the input command.
+2. ```host_info.sh``` collects hardware specifications obtained from the ```lscpu``` command and stores the information into the host_info table in the database. It takes 5 inputs which are PSQL host, PSQL port, database name, username, and password.
+3. ```host_usage.sh``` collects server resource usage obtained from the ```vmstat``` command and inserts it into the host_usage table. It takes 5 inputs which are PSQL host, PSQL port, database name, username, and password.
+4. ```crontab``` used to automate the execution of the ```host_usage.sh``` script every minute via a command that is added to the crontab file.
 
 ## Database Modeling
-Describe the schema of each table using markdown table syntax (do not put any sql code)
-- `host_info`
-- `host_usage`
+ Schema for `host_info`
 
+  | Column Name      | Data Type |                    Constraints |
+  |------------------|:---------:|-----------------------:|
+  | id               |  SERIAL   |          NOT NULL, PRIMARY KEY |
+  | hostname         |  VARCHAR  |                       NOT NULL |
+  | cpu_number       |   INT2    |                       NOT NULL |
+  | cpu_architecture |  VARCHAR  |                       NOT NULL |
+  | cpu_model        |  VARCHAR  |                       NOT NULL |
+  | cpu_mhz          |  FLOAT8   |                       NOT NULL |
+  | l2_cache         |   INT4    |    NOT NULL            |
+  | timestamp        | TIMESTAMP |                        |
+  | total_mem        |   INT4    | |
+
+- Schema for `host_usage`
+
+| Column Name | Data Type |                                                     Constraints |
+|--|:---------:|----------------------------------------------------------------:|
+| timestamp | TIMESTAMP |                                                        NOT NULL |
+| host_id |  SERIAL   |                  NOT NULL, FOREIGN KEY REFERENCES host_info(id) |
+| memory_free |   INT4    |            NOT NULL                                          $1 |
+| cpu_idle |   INT2    |        NOT NULL                                            Cool |
+| cpu_kernel |   INT2    |      NOT NULL                                            -----: |
+| disk_io |   INT4    |     NOT NULL                                              $1600 |
+| disk_available |   INT4    | NOT NULL                                                    $12 |
 # Test
 How did you test your bash scripts DDL? What was the result?
 
-# Deployment
-How did you deploy your app? (e.g. Github, crontab, docker)
+The bash scripts were tested manually and in the following manner:
+1. testing `psql_docker.sh`
+    ```bash
+   #create postgres container with username and password
+   ./scripts/psql_docker.sh create postgres <password>
+   
+   #verify container "jrvs-psql" is up and running
+   docker container ls -a -f name=jrvs-psql
+    ```
+2. testing `host_info.sh`
+    ```bash
+   # run host_info.sh
+   ./scripts/host_info.sh localhost 5432 host_agent postgres <your_password>
+   
+   #connect to the database
+   psql -h localhost -U postgres -d host_agent -W
+   
+   #verify data was actually installed with the proper columns populated
+   SELECT * FROM host_info;
+    ```
+3. testing `host_usage.sh`
+    ```bash
+   # run host_usage.sh
+   ./scripts/host_info.sh localhost 5432 host_agent postgres <your_password>
+   
+   #connect to the database
+   psql -h localhost -U postgres -d host_agent -W
+   
+   #verify data was actually installed with the proper columns populated
+   SELECT * FROM host_usage LIMIT 1;
+    ```
+4. testing if `crontab` is working correctly
+    ```bash
+   # print 3 records from the host usage table and verify the timestamps to be one minute apart
+   SELECT * FROM host_usage ORDER BY timestamp LIMIT 3;
+    ```
 
+# Deployment
+The app was deployed using crontab where the data collection process is automated using the command:
+```* * * * * bash /path to host_usage.sh localhost 5432 db_name db_user db_password > /tmp/host_usage.log```. It collected data every minute and stored into a PostgreSQL database.
 # Improvements
-Write at least three things you want to improve
-e.g.
-- handle hardware updates
-- blah
-- blah
+
+- Handle hardware updates
+- GUI to display data in a visually pleasing manner
+- Set up alerts wherever there seems to be performance issues
