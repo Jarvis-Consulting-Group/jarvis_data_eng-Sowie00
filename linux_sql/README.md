@@ -100,7 +100,7 @@ crontab -e
 6. Create and implement ```host_info.sh``` and ```host_usage.sh``` to gather hardware information and host usage data and store it into the database.
 7. Use crontab to automate ```host_usage.sh``` script every minute.
 ## Architecture
-
+![My diagram](assets/diagram.png)
 ## Scripts
 Shell script description and usage (use markdown code block for script usage)
 - psql_docker.sh
